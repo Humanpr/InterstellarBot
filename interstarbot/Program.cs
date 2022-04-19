@@ -43,9 +43,9 @@ builder.Services.AddValidatorsFromAssemblyContaining<Program>(ServiceLifetime.Si
 builder.Services.AddSingleton(Channel.CreateUnbounded<IProcessMediaCommand>());
 builder.Services.AddSingleton(Channel.CreateUnbounded<IPublishMediaCommand>());
 
-builder.Services.AddHostedService<WebhookRegisterer>();
 builder.Services.AddHostedService<MediaProcessService>();
 builder.Services.AddHostedService<MediaPublishSevice>();
+builder.Services.AddHostedService<WebhookRegisterer>();
 
 builder.Services.AddMediatR(typeof(Program));
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(CommandValidationBehaviour<,>));
