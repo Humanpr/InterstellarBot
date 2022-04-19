@@ -26,7 +26,7 @@ public class MediaPublishSevice : BackgroundService
             using var scope = _serviceScopeFactory.CreateScope();
             var mediatR = scope.ServiceProvider.GetRequiredService<IMediator>();
             
-            _logger.LogInformation($"New publish task received {command.MediaContext.MediaName}");
+            _logger.LogInformation($"New publish task received. Media ID {command.MediaContext.MediaName}");
 
             try
             {
@@ -39,7 +39,7 @@ public class MediaPublishSevice : BackgroundService
                 return;
             }
             
-            _logger.LogInformation($"Published Media ID {command.MediaContext.MediaName} to ReplyTweetID {command.MediaContext.ReplyTweetID}");
+            _logger.LogInformation($"Publish task done. Media ID {command.MediaContext.MediaName} to ReplyTweetID {command.MediaContext.ReplyTweetID}");
         });
     }
 }

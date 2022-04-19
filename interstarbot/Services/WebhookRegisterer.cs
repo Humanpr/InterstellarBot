@@ -1,5 +1,6 @@
 ﻿using interstarbot.Options;
 using Tweetinvi;
+using Tweetinvi.Core.DTO;
 using Tweetinvi.Models;
 
 namespace interstarbot.Services;
@@ -26,6 +27,7 @@ public class WebhookRegisterer : BackgroundService
         // todo get bearer if not configured
 
         var userClient = new TwitterClient(credentials);
+        _logger.LogInformation($" Acces token {credentials.AccessToken}  Bearer {credentials.BearerToken} ConsumerKey {credentials.ConsumerKey} SonsSecret {credentials.ConsumerSecret} AccessTokewnSeceret {credentials.AccessTokenSecret}");
         
         var webhooks = await userClient.AccountActivity.GetAccountActivityEnvironmentWebhooksAsync("dev");
         
@@ -39,9 +41,13 @@ public class WebhookRegisterer : BackgroundService
         _logger.LogInformation($"Registering new webhook..");
         
         //todo: check operations for failure
+        var railwayUrl = _configuration.GetValue<string>("RAILWAY_STATIC_URL");
+        var defaultUrl = _configuration.GetValue<string>("AppUrl");
         
-        var webhookEndpointUrl = _configuration.GetValue<string>("WebhookEndpointUrl");
-        var env = _configuration.GetValue<string>("WebhookEnv");
+        var webhookEndpointUrl = "https://"+ (railwayUrl ?? defaultUrl) +"/webhooks/twitter";
+        _logger.LogInformation($" URL {webhookEndpointUrl}");
+        
+        var env = _configuration.GetValue<string>("WebhookEnv") ?? "dev";
         await userClient.AccountActivity.CreateAccountActivityWebhookAsync(env, webhookEndpointUrl);
         _logger.LogInformation($"Successfully registered new webhook..");
         // Register user to registered webhook

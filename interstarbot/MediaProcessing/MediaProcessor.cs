@@ -20,7 +20,9 @@ public class MediaProcessor : IMediaProcessor
         var audiopath = _configuration.GetSection("MediaIO").GetValue<string>("SampleAudio");
         var processedUri = _configuration.GetSection("MediaIO").GetValue<string>("ProcessedMediaLocation");
         var ffmpeguri = _configuration.GetSection("MediaIO").GetValue<string>("FFMPEG");
-        var outpath = @$"{processedUri}\{mediaContext.MediaName}.mp4";
+        var outpath = @$"{processedUri}{Path.DirectorySeparatorChar}{mediaContext.MediaName}.mp4";
+        
+        _logger.LogInformation($"audiolpoc {audiopath} processedloc {processedUri} ffmpeg {ffmpeguri} out {outpath}");
         
         var processinfo = new ProcessStartInfo
         {
@@ -28,7 +30,7 @@ public class MediaProcessor : IMediaProcessor
             WorkingDirectory = processedUri,
             CreateNoWindow = true,
             UseShellExecute = false,
-            RedirectStandardOutput = true,
+            RedirectStandardOutput = true
         };
         
         if (mediaContext.StartTime == -1 || mediaContext.EndTime == -1 || mediaContext.VideoDuration < mediaContext.EndTime - mediaContext.StartTime)
@@ -40,7 +42,7 @@ public class MediaProcessor : IMediaProcessor
         {
             processinfo.Arguments = $"-y -i {videoUrl}  -i {audiopath} -filter_complex \"[0:a]volume=0:enable=between(t\\,{mediaContext.StartTime}\\,{mediaContext.EndTime})[a0];[1:a]atrim=0:{mediaContext.EndTime - mediaContext.StartTime},adelay={mediaContext.StartTime}s:all=1[a1];[a0][a1]amix=normalize=0:duration=first[aout]\" -map 0:v  -map [aout] -c:v copy {outpath}";
         }
-        
+        _logger.LogInformation($"Command : {processinfo.Arguments} ");
         using var process = new Process{ StartInfo = processinfo };
         try
         {
@@ -52,7 +54,7 @@ public class MediaProcessor : IMediaProcessor
         }
         catch (Exception e)
         {
-            _logger.LogError($"ERROR PROCESS START.. {e.StackTrace}");
+            _logger.LogError($"ERROR PROCESS START.. ");
             throw;
         }
     }

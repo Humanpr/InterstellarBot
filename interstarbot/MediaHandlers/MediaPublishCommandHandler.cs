@@ -18,7 +18,6 @@ public class MediaPublishCommandHandler : AsyncRequestHandler<MediaPublishComman
     {
         using var scope = _scopeFactory.CreateScope();
         var mediaPublisher = scope.ServiceProvider.GetRequiredService<IPublishMedia>();
-        
         return mediaPublisher.Publish(request.MediaContext);
     }
 }

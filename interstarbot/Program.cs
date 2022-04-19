@@ -57,9 +57,24 @@ Plugins.Add<AspNetPlugin>();
 var app = builder.Build();
 using var serviceScope = app.Services.CreateScope();
 var services = serviceScope.ServiceProvider;
-var credentials = services.GetRequiredService<TwitterCredentials>();
-
 ILogger<Program> _logger = services.GetRequiredService<ILogger<Program>>();
+
+var _configuration = services.GetRequiredService<IConfiguration>();
+var railwayUrl = _configuration.GetValue<string>("RAILWAY_STATIC_URL");
+var defaultUrl = _configuration.GetValue<string>("AppUrl");
+var webhookEndpointUrl = "https://"+ (railwayUrl ?? defaultUrl) +"/webhooks/twitter";
+
+_logger.LogInformation($" URL {webhookEndpointUrl}");
+
+var audiopath = _configuration.GetSection("MediaIO").GetValue<string>("SampleAudio");
+var processedUri = _configuration.GetSection("MediaIO").GetValue<string>("ProcessedMediaLocation");
+var ffmpeguri = _configuration.GetSection("MediaIO").GetValue<string>("FFMPEG");
+
+_logger.LogInformation($"audiolpoc {audiopath} processedloc {processedUri} ffmpeg {ffmpeguri} ");
+
+var credentials = services.GetRequiredService<TwitterCredentials>();
+_logger.LogInformation($" Acces token {credentials.AccessToken}  Bearer {credentials.BearerToken} ConsumerKey {credentials.ConsumerKey} SonsSecret {credentials.ConsumerSecret} AccessTokewnSeceret {credentials.AccessTokenSecret}");
+
 
 var twitterClient = new TwitterClient(credentials);
 var requestHandler = twitterClient.AccountActivity.CreateRequestHandler();
@@ -98,7 +113,6 @@ accountActivityStream.TweetCreated += async (sender, tweetCreatedEvent) =>
                 _logger.LogInformation("VIDEO NOT FOUND");
                 return;
             }
-
             
             var mediaProcessCommand = new MediaProcessCommand(new MediaContext(mediaTweet,replyTweet));
             
@@ -112,6 +126,7 @@ accountActivityStream.TweetCreated += async (sender, tweetCreatedEvent) =>
 };
 #endregion
 
+app.MapGet("/", () => "Hello !");
 app.UseTweetinviWebhooks(config);
 app.UseAuthorization();
 app.MapControllers();

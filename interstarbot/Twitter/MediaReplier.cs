@@ -27,7 +27,7 @@ public class MediaReplier : IPublishMedia
         var userClient = new TwitterClient(credentials);
         
         var processedUri = _configuration.GetSection("MediaIO").GetValue<string>("ProcessedMediaLocation");
-        var outpath = @$"{processedUri}\{mediaContext.MediaName}.mp4";
+        var outpath = @$"{processedUri}{Path.DirectorySeparatorChar}{mediaContext.MediaName}.mp4";
 
         var videoBinary = File.ReadAllBytes(outpath);
         var uploadedVideo = await userClient.Upload.UploadTweetVideoAsync(videoBinary);
